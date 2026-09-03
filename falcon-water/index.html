@@ -35,6 +35,7 @@
     margin:12px 0 6px;
     white-space:nowrap;
     letter-spacing:-0.2px;
+    transform: scaleY(1.5);
   }
   .dashed{ border:none; border-top:1px dashed var(--ink); margin:7px 0; }
   .info{ font-size:11px; text-align:center; line-height:1.6; }
@@ -132,6 +133,10 @@
     }
     td input, td textarea{ padding:1px 0 !important; }
   }
+
+  #itemsBody tr{
+        border-top: 1px dashed var(--ink);
+  }
 </style>
 </head>
 <body>
@@ -206,14 +211,8 @@
   </div>
 
   <div class="controls">
-    <button class="print-btn" id="bridgePrintBtn" onclick="printViaBridge()">🖨 Print (Thermal - Bridge)</button>
+    <button class="print-btn" onclick="window.print()">🖨 Print Invoice</button>
     <button class="reset-btn" onclick="resetAll()">Reset</button>
-  </div>
-  <div class="controls" style="margin-top:8px;">
-    <button class="print-btn" style="background:#666;" onclick="window.print()">🖨 Print (Browser - Backup)</button>
-  </div>
-  <div id="bridgeStatus" style="width:340px;max-width:100%;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#888;margin-top:6px;">
-    Checking print bridge...
   </div>
 </div>
 
@@ -275,73 +274,6 @@ function resetAll(){
 }
 
 addRow();
-
-// --- Print Bridge integration ---
-const BRIDGE_URL = 'http://localhost:5588';
-
-function checkBridgeStatus(){
-  const statusEl = document.getElementById('bridgeStatus');
-  fetch(BRIDGE_URL + '/ping', { method: 'GET' })
-    .then(r => r.json())
-    .then(d => {
-      statusEl.textContent = '🟢 Print bridge connected (' + d.connectionType + ')';
-      statusEl.style.color = '#2a7d2a';
-    })
-    .catch(() => {
-      statusEl.textContent = '⚪ Print bridge not running — start it, or use the Browser print button below';
-      statusEl.style.color = '#888';
-    });
-}
-checkBridgeStatus();
-
-function collectInvoiceData(){
-  const items = [];
-  document.querySelectorAll('#itemsBody tr').forEach(row => {
-    const name = row.querySelector('.item-name-cell textarea').value;
-    const qty = parseFloat(row.querySelector('.qty-cell input').value) || 0;
-    const rate = parseFloat(row.querySelector('.rate-cell input').value) || 0;
-    const amount = qty * rate;
-    items.push({ name, qty, rate, amount });
-  });
-  return {
-    invoiceNo: document.getElementById('invoiceNo').value,
-    invoiceDate: document.getElementById('invoiceDate').value,
-    custName: document.getElementById('custName').value,
-    custAddress: document.getElementById('custAddress').value,
-    paymentType: document.getElementById('paymentType').value,
-    items: items,
-    subTotal: document.getElementById('subTotal').textContent,
-    vatAmount: document.getElementById('vatAmount').textContent,
-    grandTotal: document.getElementById('grandTotal').textContent,
-    salesman: document.getElementById('salesman').value
-  };
-}
-
-function printViaBridge(){
-  const btn = document.getElementById('bridgePrintBtn');
-  const originalText = btn.textContent;
-  btn.textContent = 'Printing...';
-  btn.disabled = true;
-
-  fetch(BRIDGE_URL + '/print', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(collectInvoiceData())
-  })
-    .then(r => r.json())
-    .then(d => {
-      btn.textContent = originalText;
-      btn.disabled = false;
-      if (!d.ok){
-        alert('Print failed: ' + (d.error || 'Unknown error') + '\n\nAap "Print (Browser - Backup)" button try kar sakte hain.');
-      }
-    })
-    .catch(() => {
-      btn.textContent = originalText;
-      btn.disabled = false;
-      alert('Print bridge se connect nahi ho saka. Kya print-server chal raha hai?\n\n"npm start" chala kar dobara try karein, ya "Print (Browser - Backup)" button use karein.');
-    });
-}
 </script>
 
 </body>
