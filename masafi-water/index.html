@@ -110,10 +110,7 @@
   }
 
   .barcode-wrap{ text-align:center; margin-top:14px; }
-  #barcodeCanvas{     width: 450px;
-    height: 80px;
-    position: relative;
-    right: 32px;}
+  #barcodeCanvas{ width:100%; max-width:340px; height:60px; }
 
   .controls{ width:400px; max-width:100%; margin-top:14px; display:flex; gap:8px; }
   .controls button{
@@ -127,11 +124,10 @@
     @page{ size:110mm auto; margin:2mm; }
     html, body{ background:#fff; padding:0; margin:0; width:106mm; }
     .controls{ display:none !important; }
-    .receipt{ box-shadow:none; width:100%; max-width:100%; padding:16px 22px 16px 16px; }
+    .receipt{ box-shadow:none; width:100%; max-width:100%; padding:0 2mm 5mm;}
     input{ border:none !important; background:transparent !important; }
     .line-edit input{ border:none !important; }
-    #barcodeCanvas{ width:450px; position: relative;
-    right: 0px;}
+    #barcodeCanvas{ width:70mm; }
   }
 
 .aed{
